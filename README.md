@@ -1,118 +1,118 @@
 # Caffeine
 
-App nativa de macOS que mantiene tu Mac despierta desde la barra de menús. Sin ventanas, sin Dock, sin dependencias: un solo archivo Swift y un script de build.
+A native macOS app that keeps your Mac awake from the menu bar. No windows, no Dock, no dependencies: a single Swift file and a build script.
 
-Mientras está activa, la pantalla no se apaga por inactividad y, por lo tanto, el sistema tampoco entra en reposo por inactividad.
+While active, the display does not turn off due to inactivity, and therefore the system does not idle-sleep either.
 
-## Características
+## Features
 
-- Vive solo en la barra de menús (`LSUIElement`), sin icono en el Dock.
-- Activar y desactivar con un clic; el icono cambia entre taza vacía y taza llena.
-- Ocultar el icono de la barra sin cerrar la app; se recupera con `⌥⌘C` o reabriendo la app.
-- Libera la reserva de energía al desactivar o al salir.
-- Sin red, sin permisos especiales, sin estado persistente.
-- Build reproducible con `build_app.sh` (app, `.dmg` y `.zip`).
+- Lives only in the menu bar (`LSUIElement`), with no Dock icon.
+- Activate and deactivate with one click; the icon switches between an empty and a full cup.
+- Hide the menu bar icon without quitting the app; bring it back with `⌥⌘C` or by reopening the app.
+- Releases the power assertion when deactivated or when you quit.
+- No network, no special permissions, no persistent state.
+- Reproducible build with `build_app.sh` (app, `.dmg`, and `.zip`).
 
-## Requisitos
+## Requirements
 
-- macOS 11 Big Sur o superior.
-- Para compilar: Command Line Tools (`xcode-select --install`), que incluyen `swiftc`.
-- Arquitectura: el build por defecto genera **Apple Silicon (arm64)**. Ver [Arquitecturas](#arquitecturas) para Intel y binario universal.
+- macOS 11 Big Sur or later.
+- To build: Command Line Tools (`xcode-select --install`), which include `swiftc`.
+- Architecture: the default build produces **Apple Silicon (arm64)**. See [Architectures](#architectures) for Intel and universal binaries.
 
-## Instalación
+## Installation
 
-### Opción A: con el DMG
+### Option A: DMG
 
-1. Abre `dist/Caffeine-1.0.0.dmg`.
-2. Arrastra **Caffeine** a la carpeta **Applications**.
-3. En el primer arranque, macOS bloqueará la app porque está firmada ad-hoc (no notarizada). Autorízala una vez:
+1. Open `dist/Caffeine-1.0.0.dmg`.
+2. Drag **Caffeine** to the **Applications** folder.
+3. On first launch, macOS will block the app because it is ad-hoc signed (not notarized). Authorize it once:
 
    ```bash
    xattr -dr com.apple.quarantine /Applications/Caffeine.app
    open /Applications/Caffeine.app
    ```
 
-   También puedes hacerlo desde la interfaz: **Ajustes del Sistema → Privacidad y seguridad → “Abrir igualmente”**. En macOS 15 y posteriores, el viejo atajo de clic derecho → Abrir ya no evita Gatekeeper.
+   You can also do it from the UI: **System Settings → Privacy & Security → "Open Anyway"**. On macOS 15 and later, the old right-click → Open shortcut no longer bypasses Gatekeeper.
 
-4. El icono de la taza aparece en la barra de menús. No hay ventana ni icono en el Dock: es normal.
+4. The cup icon appears in the menu bar. There is no window or Dock icon: that is expected.
 
-### Opción B: compilar desde el código
+### Option B: build from source
 
 ```bash
 ./build_app.sh
 open Caffeine.app
 ```
 
-El script deja `Caffeine.app` en la raíz del proyecto y los artefactos en `dist/`.
+The script leaves `Caffeine.app` in the project root and the artifacts in `dist/`.
 
-## Uso
+## Usage
 
-Haz clic en el icono de la barra de menús:
+Click the menu bar icon. The app's menu labels are in Spanish; English translations are in parentheses.
 
-| Acción | Efecto |
+| Action | Effect |
 | --- | --- |
-| **Activar** | Crea una reserva de energía; la pantalla no se apaga por inactividad. |
-| **Desactivar** | Libera la reserva y vuelve al comportamiento normal de macOS. |
-| **Salir** | Libera la reserva (si estaba activa) y cierra la app. Atajo: `⌘Q`. |
-| **Ocultar icono** | Quita el icono de la barra de menús; la app sigue corriendo y la reserva sigue activa. Vuelve con `⌥⌘C`. |
+| **Activar** (Activate) | Creates a power assertion; the display does not sleep due to inactivity. |
+| **Desactivar** (Deactivate) | Releases the assertion and returns to normal macOS behavior. |
+| **Salir** (Quit) | Releases the assertion (if active) and quits the app. Shortcut: `⌘Q`. |
+| **Ocultar icono** (Hide icon) | Removes the icon from the menu bar; the app keeps running and the assertion stays active. Bring it back with `⌥⌘C`. |
 
-La app arranca siempre desactivada; no recuerda el estado entre ejecuciones.
+The app always starts deactivated; it does not remember state between launches.
 
-### Qué sí y qué no evita
+### What it does and does not prevent
 
-- **Sí** evita el reposo por inactividad del usuario mientras está activa.
-- **No** evita el reposo al cerrar la tapa, por batería baja, por el menú Apple ni por otros motivos del sistema.
-- La reserva se libera automáticamente si el proceso termina, incluso si la app se cierra de forma inesperada.
+- **Yes**, it prevents user-idle sleep while active.
+- **No**, it does not prevent sleep when you close the lid, on low battery, from the Apple menu, or for other system reasons.
+- The assertion is released automatically if the process ends, even if the app closes unexpectedly.
 
-### Ocultar el icono de la barra
+### Hiding the menu bar icon
 
-El menú incluye **Ocultar icono (⌥⌘C)**. Al ocultarlo:
+The menu includes **Ocultar icono (⌥⌘C)**. When you hide it:
 
-- La app **no se cierra**: sigue corriendo en segundo plano.
-- Si estaba activa, la reserva de energía **sigue vigente**: la Mac sigue despierta.
-- Para recuperarlo, pulsa `⌥⌘C` desde cualquier app o vuelve a abrir `Caffeine.app` desde Finder/Spotlight. Ambos caminos muestran el icono otra vez.
+- The app **does not quit**: it keeps running in the background.
+- If it was active, the power assertion **stays in effect**: the Mac stays awake.
+- To bring it back, press `⌥⌘C` from any app or reopen `Caffeine.app` from Finder/Spotlight. Both paths show the icon again.
 
-El atajo es global y no requiere permisos de Accesibilidad. El estado oculto no se guarda: cada vez que abres la app, el icono aparece visible.
+The shortcut is global and does not require Accessibility permissions. The hidden state is not saved: every time you open the app, the icon is visible.
 
-## Compilar
+## Building
 
 ```bash
 ./build_app.sh
 ```
 
-Salida:
+Output:
 
 ```
-Caffeine.app                     # app lista para ejecutar
-dist/Caffeine-1.0.0.dmg          # instalador drag & drop
-dist/Caffeine-1.0.0.zip          # app comprimida
+Caffeine.app                     # ready-to-run app
+dist/Caffeine-1.0.0.dmg          # drag-and-drop installer
+dist/Caffeine-1.0.0.zip          # compressed app
 ```
 
-### Variables de entorno
+### Environment variables
 
-| Variable | Por defecto | Descripción |
+| Variable | Default | Description |
 | --- | --- | --- |
-| `VERSION` | `1.0.0` | `CFBundleShortVersionString` y nombre de los artefactos. |
+| `VERSION` | `1.0.0` | `CFBundleShortVersionString` and artifact names. |
 | `BUILD_NUMBER` | `1` | `CFBundleVersion`. |
-| `BUNDLE_ID` | `com.local.caffeine` | Identificador del bundle. Cámbialo si vas a distribuir la app. |
-| `MIN_MACOS` | `11.0` | Versión mínima de macOS del binario y del `Info.plist`. |
-| `ARCHS` | `arm64 x86_64` | Arquitecturas a intentar. Las que el toolchain no soporte se omiten con un aviso. |
-| `SIGN_IDENTITY` | vacío | Identidad de firma (`Developer ID Application: ...`). Si está vacío, firma ad-hoc. |
-| `NOTARY_PROFILE` | vacío | Perfil de `notarytool`. Activa la notarización (requiere `SIGN_IDENTITY`). |
+| `BUNDLE_ID` | `com.local.caffeine` | Bundle identifier. Change it before distributing the app. |
+| `MIN_MACOS` | `11.0` | Minimum macOS version for the binary and `Info.plist`. |
+| `ARCHS` | `arm64 x86_64` | Architectures to attempt. Unsupported ones are skipped with a warning. |
+| `SIGN_IDENTITY` | empty | Signing identity (`Developer ID Application: ...`). If empty, ad-hoc signing. |
+| `NOTARY_PROFILE` | empty | `notarytool` profile. Enables notarization (requires `SIGN_IDENTITY`). |
 
-Ejemplo:
+Example:
 
 ```bash
 VERSION=1.0.1 BUILD_NUMBER=2 ./build_app.sh
 ```
 
-### Arquitecturas
+### Architectures
 
-El script intenta compilar cada arquitectura de `ARCHS` y arma el binario con `lipo`.
+The script tries to build each architecture in `ARCHS` and combines them with `lipo`.
 
-- **Apple Silicon:** funciona con Command Line Tools.
-- **Intel:** compila desde el código en el propio Mac Intel; el script detecta la arquitectura al fallar la cruzada y genera un binario válido para esa máquina.
-- **Universal (arm64 + x86_64):** requiere el toolchain completo de Xcode. Las Command Line Tools incluyen la SDK, pero no las librerías de compatibilidad de Swift para la arquitectura cruzada, así que la compilación x86_64 falla al enlazar. Con Xcode instalado:
+- **Apple Silicon:** works with Command Line Tools.
+- **Intel:** build from source on the Intel Mac itself; the script detects the architecture when the cross-build fails and produces a valid binary for that machine.
+- **Universal (arm64 + x86_64):** requires the full Xcode toolchain. Command Line Tools include the SDK but not the Swift compatibility libraries for the cross architecture, so the x86_64 build fails at link time. With Xcode installed:
 
   ```bash
   sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
@@ -120,66 +120,66 @@ El script intenta compilar cada arquitectura de `ARCHS` y arma el binario con `l
   lipo -info Caffeine.app/Contents/MacOS/Caffeine   # arm64 x86_64
   ```
 
-## Distribuir sin advertencias de Gatekeeper
+## Distributing without Gatekeeper warnings
 
-Para que la app se abra con doble clic en cualquier Mac, sin `xattr` ni “Abrir igualmente”, necesita firma **Developer ID** y notarización. Requiere una cuenta de Apple Developer Program y un certificado **Developer ID Application** en el llavero.
+For the app to open with a double-click on any Mac, without `xattr` or "Open Anyway", it needs a **Developer ID** signature and notarization. This requires an Apple Developer Program account and a **Developer ID Application** certificate in the keychain.
 
-1. Guarda las credenciales de notarización una sola vez:
+1. Store the notarization credentials once:
 
    ```bash
    xcrun notarytool store-credentials "caffeine-notary" \
-     --apple-id "tu@email.com" \
+     --apple-id "you@example.com" \
      --team-id "TEAMID" \
      --password "app-specific-password"
    ```
 
-2. Compila firmando y notarizando:
+2. Build with signing and notarization:
 
    ```bash
-   SIGN_IDENTITY="Developer ID Application: Tu Nombre (TEAMID)" \
+   SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
    NOTARY_PROFILE="caffeine-notary" \
    ./build_app.sh
    ```
 
-El script firma con hardened runtime y timestamp, notariza la app, la grapa (`stapler`), y repite el proceso con el DMG. Sin esas variables, la app queda con firma ad-hoc y Gatekeeper pedirá confirmación en cada Mac nueva.
+The script signs with hardened runtime and a timestamp, notarizes the app, staples it, and repeats the process with the DMG. Without those variables, the app remains ad-hoc signed and Gatekeeper will ask for confirmation on each new Mac.
 
-## Cómo funciona
+## How it works
 
-- `AppDelegate` crea un `NSStatusItem` y su menú (`Activar`/`Desactivar`, `Ocultar icono`, `Salir`).
-- Al activar, llama a `IOPMAssertionCreateWithName` con `kIOPMAssertionTypeNoDisplaySleep`: mientras la pantalla no puede apagarse por inactividad, el sistema tampoco entra en reposo por esa causa.
-- Al desactivar o salir, llama a `IOPMAssertionRelease`.
-- `applicationDidFinishLaunching` usa `setActivationPolicy(.accessory)` y el `Info.plist` marca `LSUIElement`, por eso no hay Dock ni ventana.
-- El icono se dibuja con SF Symbols (`cup.and.saucer` / `cup.and.saucer.fill`) como plantilla, así se adapta a modo claro y oscuro.
-- `Ocultar icono` pone `statusItem.isVisible` en `false` sin cerrar la app; `⌥⌘C` alterna la visibilidad desde cualquier app con `RegisterEventHotKey` (Carbon), sin permisos de Accesibilidad.
-- `applicationShouldHandleReopen` vuelve a mostrar el icono si abres la app otra vez desde Finder o Spotlight.
+- `AppDelegate` creates an `NSStatusItem` and its menu (`Activar`/`Desactivar`, `Ocultar icono`, `Salir`).
+- When activating, it calls `IOPMAssertionCreateWithName` with `kIOPMAssertionTypeNoDisplaySleep`: while the display cannot turn off due to inactivity, the system does not idle-sleep for that reason either.
+- When deactivating or quitting, it calls `IOPMAssertionRelease`.
+- `applicationDidFinishLaunching` uses `setActivationPolicy(.accessory)` and `Info.plist` sets `LSUIElement`, which is why there is no Dock icon or window.
+- The icon is drawn with SF Symbols (`cup.and.saucer` / `cup.and.saucer.fill`) as a template, so it adapts to light and dark mode.
+- `Ocultar icono` sets `statusItem.isVisible` to `false` without quitting the app; `⌥⌘C` toggles visibility from any app using `RegisterEventHotKey` (Carbon), without Accessibility permissions.
+- `applicationShouldHandleReopen` shows the icon again if you reopen the app from Finder or Spotlight.
 
-No usa sandbox, entitlements ni red. La reserva de energía es del sistema (IOKit) y desaparece con el proceso.
+It does not use the sandbox, entitlements, or the network. The power assertion belongs to the system (IOKit) and disappears with the process.
 
-## Estructura del proyecto
+## Project structure
 
 ```
 caffeine/
-├── Caffeine.swift        # código de la app (único archivo)
-├── build_app.sh          # build, firma y artefactos
+├── Caffeine.swift        # app code (single file)
+├── build_app.sh          # build, signing, and artifacts
 ├── README.md
-├── Caffeine.app          # generado por el script
-└── dist/                 # generado por el script (.dmg y .zip)
+├── Caffeine.app          # generated by the script
+└── dist/                 # generated by the script (.dmg and .zip)
 ```
 
-## Problemas comunes
+## Troubleshooting
 
-| Síntoma | Causa y solución |
+| Symptom | Cause and fix |
 | --- | --- |
-| “Caffeine está dañada y no se puede abrir” | Cuarentena de Gatekeeper sobre una app ad-hoc. `xattr -dr com.apple.quarantine /Applications/Caffeine.app`. |
-| “No se puede verificar al desarrollador” | Ajustes del Sistema → Privacidad y seguridad → “Abrir igualmente”. |
-| El icono no aparece al abrir la app | La barra de menús está llena o una app como Bartender/Ice lo oculta; comprueba que el proceso siga vivo con `pgrep -fl Caffeine`. |
-| Oculté el icono y no sé cómo recuperarlo | Pulsa `⌥⌘C` o vuelve a abrir `Caffeine.app`; el icono reaparece. |
-| `swiftc: command not found` | Instala las herramientas: `xcode-select --install`. |
-| `ld: symbol(s) not found for architecture x86_64` | Normal con solo Command Line Tools. Usa el Mac de esa arquitectura o instala Xcode completo para el binario universal. |
-| La app no evita el reposo | Comprueba que el icono esté en modo lleno (`cup.and.saucer.fill`) y que el sistema no esté durmiendo por tapa cerrada o batería baja. |
+| "Caffeine is damaged and can't be opened" | Gatekeeper quarantine on an ad-hoc signed app. `xattr -dr com.apple.quarantine /Applications/Caffeine.app`. |
+| "Cannot verify the developer" | System Settings → Privacy & Security → "Open Anyway". |
+| The icon does not appear when opening the app | The menu bar is full or an app such as Bartender/Ice is hiding it; check that the process is still alive with `pgrep -fl Caffeine`. |
+| I hid the icon and don't know how to get it back | Press `⌥⌘C` or reopen `Caffeine.app`; the icon reappears. |
+| `swiftc: command not found` | Install the tools: `xcode-select --install`. |
+| `ld: symbol(s) not found for architecture x86_64` | Normal with Command Line Tools only. Use a Mac of that architecture or install full Xcode for a universal binary. |
+| The app does not prevent sleep | Check that the icon is in the full state (`cup.and.saucer.fill`) and that the system is not sleeping because the lid is closed or the battery is low. |
 
-## Notas
+## Notes
 
-- El bundle ID por defecto es `com.local.caffeine`; usa uno propio antes de distribuir.
-- No incluye icono de app para Finder; el icono de la barra de menús es un SF Symbol del sistema.
-- Este proyecto no tiene relación con otras apps llamadas Caffeine.
+- The default bundle ID is `com.local.caffeine`; use your own before distributing.
+- It does not include an app icon for Finder; the menu bar icon is a system SF Symbol.
+- This project is not affiliated with any other app named Caffeine.
